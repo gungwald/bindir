@@ -1,61 +1,60 @@
 
-********************************
-*                              *
-* PRODOS MLI SYSTEM CALLS      *
-*                              *
-********************************
+;*******************************
+;                              *
+; PRODOS MLI SYSTEM CALLS      *
+;                              *
+;*******************************
 
-MSG_ADDR             EQU        6
+MSG_ADDR             .equ        6
 
-ON_LINE_ID           EQU        $C5
-GET_PX_ID            EQU        $C7
-OPEN_ID              EQU        $C8
-CLOSE_ID             EQU        $CC
+ON_LINE_ID           .equ        $C5
+GET_PREFIX_ID        .equ        $C7
+OPEN_ID              .equ        $C8
+CLOSE_ID             .equ        $CC
 
 
-GET_PREFIX
+getPrefix
                JSR   MLI
-               DB    GET_PX_ID
-               DA    GET_PX_PARAMS
-               BEQ   GET_PX_OK
+               .byte    GET_PREFIX_ID
+               .word    getPrefixParams
+               BEQ	getPrefixOkay
                JSR   WRITE_ERROR
                JMP   EXIT_PROGRAM
-GET_PX_OK
+getPrefixOkay
                RTS
 
 
-OPEN
+open
                JSR   MLI
-               DB    OPEN_ID
-               DA    OPEN_PARAMS
-               BEQ   OPEN_OK
+               .byte    OPEN_ID
+               .word    OPEN_PARAMS
+               BEQ	openOkay
                JSR   WRITE_ERROR
                JMP   EXIT_PROGRAM
-OPEN_OK
+openOkay
                RTS
 
 
-CLOSE
+close
                JSR   MLI
-               DB    CLOSE_ID
-               DA    CLOSE_PARAMS
+               .byte    CLOSE_ID
+               .word    CLOSE_PARAMS
                BEQ   CLOSE_OK
                JSR   WRITE_ERROR
                JMP   EXIT_PROGRAM
-CLOSE_OK
+close_ok
                RTS
 
 
-EXIT_PROGRAM
+exit_program
                POPW  RETURN_ADDR
                RTS
 
 
-RETURN_ADDR
-               DA    0
+return_addr	.word    0
 
 
-WRITE_ERROR
+write_error
                STA   ERROR_CODE
 
                PUSHXY
@@ -64,7 +63,7 @@ WRITE_ERROR
                LDX   #0
                LDY   #0
 
-:NEXT_CODE
+.NEXT_CODE
                LDA   ERROR_CODE
                CMP   ERROR_CODES,X
                BEQ   :FOUND_CODE
@@ -74,7 +73,7 @@ WRITE_ERROR
                CPX   ERROR_COUNT
                BMI   :NEXT_CODE
 
-:WRITE_UNK_ER
+.WRITE_UNK_ER
                LDA   #"("
                JSR   COUT
                PUTS  UNKNOWN_CODE
@@ -84,7 +83,7 @@ WRITE_ERROR
                JSR   COUT
                JMP   :DONE
 
-:FOUND_CODE
+.FOUND_CODE
                LDA   ERROR_MSGS,Y ;LOAD A WITH LOW BYTE OF MSG
                STA   MSG_ADDR     ;STORE LOW BYTE INTO LOLAC
                INY                ;ADVANCE TO HIGH BYTE
@@ -97,45 +96,45 @@ WRITE_ERROR
                LDA   #")"
                JSR   COUT
 
-:DONE
+.DONE
                POPW  MSG_ADDR
                POPYX
                RTS
 
 
-PREFIX         DS    65
-BINDIR         DS    65
-FILLER         DS    \          ;FILL WILL 0'S TO NEX PAGE
-IOBUF          DS    1024       ;MUST START ON PAGE BOUNDAYR
+prefix         .space    65
+bindir         .space    65
+filler         .space    \          ;FILL WILL 0'S TO NEX PAGE
+iobuf          .space    1024       ;MUST START ON PAGE BOUN.wordYR
 
 
-GET_PX_PARAMS
-               DB    1          ;PARAM COUNT
-               DA    PREFIX     ;RESULT
+getPrefixParams
+               .byte    1          ;PARAM COUNT
+               .word    prefix     ;RESULT
 
 
-OPEN_PARAMS
-               DB    3          ;PARAM COUNT
-               DA    BINDIR     ;INPUT PARMAETER
-               DA    IOBUF      ;INPUT PARAMETER
-BINDIR_REF
-               DB    0          ;RESULT
+open_params
+               .byte    3          ;PARAM COUNT
+               .word    bindir     ;INPUT PARMAETER
+               .word    iobuf      ;INPUT PARAMETER
+bindir_ref
+               .byte    0          ;RESULT
 
 
-CLOSE_PARAMS
-               DB    1          ;PARAM COUNT
-CLOSE_REF
-               DB    0          ;INPUT
+close_params
+               .byte    1          ;PARAM COUNT
+close_ref
+               .byte    0          ;INPUT
 
 
 ERROR_CODE
-               DB    0
+               .byte    0
 
 UNKNOWN_CODE
                ASC   "UNKNOWN ERROR CODE: ",00
 
 ERROR_COUNT
-               DB    31
+               .byte    31
 
 ERR00          ASC   "NO ERROR",00
 ERR01          ASC   "BAD SYSTEM CALL NUMBER",00
@@ -171,69 +170,69 @@ ERR5A          ASC   "BIT MAP DISK ADDRESS IS IMPOSSIBLE",00
 
 
 ERROR_CODES
-               DB    $00
-               DB    $01
-               DB    $03        ;BASIC code used improperly by AppleWin < 1.26.3
-               DB    $04
-               DB    $25
-               DB    $27
-               DB    $28
-               DB    $2B
-               DB    $2E
-               DB    $40
-               DB    $42
-               DB    $43
-               DB    $44
-               DB    $45
-               DB    $46
-               DB    $47
-               DB    $48
-               DB    $49
-               DB    $4A
-               DB    $4B
-               DB    $4C
-               DB    $4D
-               DB    $4E
-               DB    $50
-               DB    $51
-               DB    $52
-               DB    $54
-               DB    $55
-               DB    $56
-               DB    $57
-               DB    $5A
+               .byte    $00
+               .byte    $01
+               .byte    $03        ;BASIC code used improperly by AppleWin < 1.26.3
+               .byte    $04
+               .byte    $25
+               .byte    $27
+               .byte    $28
+               .byte    $2B
+               .byte    $2E
+               .byte    $40
+               .byte    $42
+               .byte    $43
+               .byte    $44
+               .byte    $45
+               .byte    $46
+               .byte    $47
+               .byte    $48
+               .byte    $49
+               .byte    $4A
+               .byte    $4B
+               .byte    $4C
+               .byte    $4D
+               .byte    $4E
+               .byte    $50
+               .byte    $51
+               .byte    $52
+               .byte    $54
+               .byte    $55
+               .byte    $56
+               .byte    $57
+               .byte    $5A
 
 ERROR_MSGS
-               DA    ERR00
-               DA    ERR01
-               DA    ERR03      ;BASIC code used improperly by AppleWin < 1.26.3
-               DA    ERR04
-               DA    ERR25
-               DA    ERR27
-               DA    ERR28
-               DA    ERR2B
-               DA    ERR2E
-               DA    ERR40
-               DA    ERR42
-               DA    ERR43
-               DA    ERR44
-               DA    ERR45
-               DA    ERR46
-               DA    ERR47
-               DA    ERR48
-               DA    ERR49
-               DA    ERR4A
-               DA    ERR4B
-               DA    ERR4C
-               DA    ERR4D
-               DA    ERR4E
-               DA    ERR50
-               DA    ERR51
-               DA    ERR52
-               DA    ERR53
-               DA    ERR55
-               DA    ERR56
-               DA    ERR57
-               DA    ERR5A
+               .word    ERR00
+               .word    ERR01
+               .word    ERR03      ;BASIC code used improperly by AppleWin < 1.26.3
+               .word    ERR04
+               .word    ERR25
+               .word    ERR27
+               .word    ERR28
+               .word    ERR2B
+               .word    ERR2E
+               .word    ERR40
+               .word    ERR42
+               .word    ERR43
+               .word    ERR44
+               .word    ERR45
+               .word    ERR46
+               .word    ERR47
+               .word    ERR48
+               .word    ERR49
+               .word    ERR4A
+               .word    ERR4B
+               .word    ERR4C
+               .word    ERR4D
+               .word    ERR4E
+               .word    ERR50
+               .word    ERR51
+               .word    ERR52
+               .word    ERR53
+               .word    ERR55
+               .word    ERR56
+               .word    ERR57
+               .word    ERR5A
 
 :

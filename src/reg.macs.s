@@ -1,98 +1,93 @@
+;*******************************
+;                              *
+; .macro: PUSH X REGISTER ONTO *
+;      STACK                   *
+;                              *
+;*******************************
+pushx          .macro
+               txa
+               pha
+               .endm
 
-:  P  R  I  N  T  
+;*******************************
+;                              *
+; .macro: POPS X REGISTER FROM *
+;      STACK                   *
+;                              *
+;*******************************
+popx		.macro
+		pla
+		tax
+		.endm
 
-********************************
-*                              *
-* MAC: PUSH X REGISTER ON TO   *
-*      STACK                   *
-*                              *
-********************************
-PUSHX          MAC
-               TXA
-               PHA
-               <<<
+;*******************************
+;                              *
+; .macro: PUSH Y REGISTER ONTO *
+;      STACK                   *
+;                              *
+;*******************************
+pushy          .macro
+               tya
+               pha
+               .endm
 
-********************************
-*                              *
-* MAC: POPS X REGISTER FROM    *
-*      STACK                   *
-*                              *
-********************************
-popX    .macro
-        pla
-        tax
-        .endm
+;*******************************
+;                              *
+; .macro: POPS Y REGISTER FROM *
+;      STACK                   *
+;                              *
+;*******************************
+popy           .macro
+               pla
+               tay
+               .endm
 
-********************************
-*                              *
-* MAC: PUSH Y REGISTER ON TO   *
-*      STACK                   *
-*                              *
-********************************
-PUSHY          MAC
-               TYA
-               PHA
-               <<<
+;*******************************
+;                              *
+; PUSHES REGISTERS X AND Y     *
+; ONTO THE STACK               *
+;                              *
+;*******************************
+pushxy         .macro
+               txa
+               pha
+               tya
+               pha
+               .endm
 
-********************************
-*                              *
-* MAC: POPS Y REGISTER FROM    *
-*      STACK                   *
-*                              *
-********************************
-POPY           MAC
-               PLA
-               TAY
-               <<<
+;*******************************
+;                              *
+; DOES THE REVERSE OF PUSHXY   *
+;                              *
+;*******************************
+popyx          .macro
+               pla
+               tay
+               pla
+               tax
+               .endm
 
-********************************
-*                              *
-* PUSHES REGISTERS X AND Y     *
-* ONTO THE STACK               *
-*                              *
-********************************
-PUSHXY         MAC
-               TXA
-               PHA
-               TYA
-               PHA
-               <<<
+;*******************************
+;                              *
+; PUSHES WORD AT ]1 ONTO THE   *
+; STACK                        *
+;                              *
+;*******************************
+pushw          .macro	addressOfWord
+               lda	addressOfWord
+               pha
+               lda	addressOfWord+1
+               pha
+               .endm
 
-********************************
-*                              *
-* DOES THE REVERSE OF PUSHXY   *
-*                              *
-********************************
-POPYX          MAC
-               PLA
-               TAY
-               PLA
-               TAX
-               <<<
-
-********************************
-*                              *
-* PUSHES WORD AT ]1 ONTO THE   *
-* STACK                        *
-*                              *
-********************************
-PUSHW          MAC
-               LDA   ]1
-               PHA
-               LDA   ]1+1
-               PHA
-               <<<
-
-********************************
-*                              *
-* POPS WORD INTO ADDRESS ]1    *
-*                              *
-********************************
-POPW           MAC
-               PLA
-               STA   ]1+1
-               PLA
-               STA   ]1
-               <<<
-
-:
+;*******************************
+;                              *
+; POPS WORD INTO ADDRESS ]1    *
+;                              *
+;*******************************
+popw           .macro	addressForWord
+               pla
+               sta	addressForWord+1
+               pla
+               sta	addressForWord
+               .endm

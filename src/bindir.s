@@ -1,86 +1,87 @@
+;*******************************
+;                              *
+; BIN.DIR                      *
+; (CMD.PGM.MAPR)               *
+; BILL CHATFIELD               *
+; APACHE LICENSE V2            *
+;                              *
+;*******************************
 
-:  P  R  I  N  T  
+; ORG $2000
+; TYP $06        ;OUTPUT FILE TYPE IS BIN
+; SAV /BINDIR/BINDIR
 
-********************************
-*                              *
-* BIN.DIR                      *
-* (CMD.PGM.MAPR)               *
-* BILL CHATFIELD               *
-* APACHE LICENSE V2            *
-*                              *
-********************************
+               .include "equates.s"
+               .include "reg.macs.s"
+               .include "str.macs.s"
+               .include "io.macs.s"
+               .include "mem.macs.s"
 
-* ORG $2000
-* TYP $06        ;OUTPUT FILE TYPE IS BIN
-* SAV /BINDIR/BINDIR
+;*******************************
+;                              *
+; INITIAL LOAD TO SETUP THE    *
+; EXTENDED COMMAND             *
+;                              *
+;*******************************
 
-               USE   EQUATES
-               USE   REG.MACS
-               USE   STR.MACS
-               USE   IO.MACS
-               USE   MEM.MACS
+main
+               copyw	nextCommand,EXTRNCMD+1
+               copyw	EXTRNCMD+1,#<cmdHandler
 
-********************************
-*                              *
-* INITIAL LOAD TO SETUP THE    *
-* EXTENDED COMMAND             *
-*                              *
-********************************
+               jsr  	getPrefix
+               print	prefix
 
-MAIN
-               COPYA NEXT_COMMAND;EXTRNCMD+1
-               COPYA EXTRNCMD+1;#<CMD_HANDLER
+build_bindir
+               first	bindir,prefix
+               print	bindir
+               concat   bindir,bin_slash
+               print    bindir
 
-               JSR   GET_PREFIX
-               PRINT PREFIX
-
-BUILD_BINDIR
-               FIRST BINDIR;PREFIX
-               PRINT BINDIR
-               concat   bindir,BIN_SLASH
-               print    binDir
-
-               jsr      OPEN
+               jsr      open
                print    opened
 
-CLOSE_DIR
-               COPYB CLOSE_REF;BINDIR_REF
-               JSR   CLOSE
-               PRINT CLOSED
+close_dir
+               copyb	close_ref,bindir_ref
+               jsr  	close
+               print	closed
 
-END_OF_SETUP
-               RTS
+end_of_setup
+               rts
 
-********************************
-*                              *
-* EXTENDED COMMAND HANDLER     *
-*                              *
-********************************
+;*******************************
+;                              *
+; EXTENDED COMMAND HANDLER     *
+;                              *
+;*******************************
 
-CMD_HANDLER
+cmdHandler
 
-               RTS
+               rts
 
-********************************
-*                              *
-* INCLUDE SUBROUTINES          *
-*                              *
-********************************
-               USE   MLI.CALLS
+;*******************************
+;                              *
+; INCLUDE SUBROUTINES          *
+;                              *
+;*******************************
+               .include "mli.calls.s"
 
-********************************
-*                              *
-* VARIABLES                    *
-*                              *
-********************************
+;*******************************
+;                              *
+; VARIABLES                    *
+;                              *
+;*******************************
 
-NEXT_COMMAND
-               DA    0
+nextCommand	.word    0
 
-OPENED         STR   'OPENED'
-CLOSED         STR   'CLOSED'
+opened		.byte	endOpened - openedChars		;Length byte
+openedChars	.byte   "OPENED"
+endOpened	.equ	*
 
-BIN_SLASH
-               STR   'BIN/' ;LEN BYTE PREFIX, NO HI-BIT
+closed		.byte	endClosed - closedChars		;Length byte
+closedChars	.byte   "CLOSED"
+endClosed
 
-:
+binSlash	.byte	endBinSlash - binSlashChars	;Length byte
+binSlashChars	.byte   "BIN/"
+endBinSlash	.equ	*
+

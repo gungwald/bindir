@@ -1,19 +1,19 @@
 
-********************************
-* MACRO: COPYB                 *
-********************************
-COPYB          MAC
-               LDA   ]2
-               STA   ]1
-               <<<
+;*******************************
+; MACRO: Copy byte             *
+;*******************************
+copyb          .macro dest,src
+               lda	src
+               sta	dest
+               .endm
 
-********************************
-* MACRO: COPYA                 *
-********************************
-COPYA          MAC
-               LDA   ]2
-               STA   ]1
-               LDA   ]2+1
-               STA   ]1+1
-               <<<
+;*******************************
+; MACRO: Copy word             *
+;*******************************
+copyw          .macro dest,src
+               lda	src
+               sta	dest
+               lda	src+1
+               sta	dest+1
+               .endm
 
