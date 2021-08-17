@@ -35,7 +35,7 @@ $(PGM): $(PGM).obj
 	$(LK65) -code '$$8000-$$9000' -bin $(PGM).obj
 
 # as65 does not exit with a non-zero code so that make can detect when it failed.
-$(PGM).obj: symbols.s macros.s $(SRC)
+$(PGM).obj: equates.s mem.macs.s io.macs.s reg.macs.s str.macs.s mli.calls.s $(SRC)
 	$(AS65) $(SRC) 2>&1 | tee as65-output.txt && [ ! -s as65-output.txt ]
 
 test: $(DSK)
