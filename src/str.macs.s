@@ -1,110 +1,114 @@
 ;*******************************
-; MACRO: COPY                  *
-; COPIES A PASCAL-STYLE STRING *
-; PREFIXED WITH A LENGTH BYTE  *
+;                              *
+; Macro: copy                  *
+; Copies a pascal-style string *
+; prefixed with a length byte  *
+;                              *
 ;*******************************
-copy           .macro dest,src
-               pushx
-               lda      src     ;COPY LENGTH BYTE
-               sta      dest    ;STORE LENGTH BYTE
-               ldx      #0
-next           cpx      src     ;CHECK IF LEN ]2 COPIED
-               beq      done
-               lda      src+1,X
-               sta      dest+1,X
-               inx
-               jmp      next
-done           popx
-               .endm
+copy    .macro  dest,src
+        pushx
+        lda     src         ;Copy length byte
+        sta     dest        ;Store length byte
+        ldx     #0
+        repeat
+          cpx   src         ;Check if len src copied
+          break eq
+          lda   src+1,X
+          sta   dest+1,X
+          inx
+        forever
+        popx
+        .endm
 
 ;*******************************
 ;                              *
-; MACRO: CONCAT PASCAL STRING  *
-; ]1 - DESTINATION ADDRESS     *
-; ]2 - SOURCE ADDRESS          *
+; Macro: Concat Pascal string  *
 ;                              *
 ;*******************************
-concat         .macro   dest,src
-               pushxy
-               ldx      dest         ;X HOLDS LEN DEST INDEX
-               ldy      #0         ;Y HOLDS LEN SRC INDEX
-next           cpy      src         ;CHECK IF LEN ]2 COPIED
-               beq      done
-               lda      src+1,Y     ;LOAD CHAR FROM SRC
-               sta      dest+1,X     ;STORE TO DEST
-               inx
-               iny
-               jmp      next
-done           stx      dest         ;STORE THE COMBINED LEN
-               popyx
-               .endm
+concat  .macro  dest,src
+        pushxy
+        ldx     dest        ;X holds len dest index
+        ldy     #0          ;Y holds len src index
+        repeat
+          cpy   src         ;Check if len src copied
+          break eq
+          lda   src+1,Y     ;Load char from src
+          sta   dest+1,X    ;Store to dest
+          inx
+          iny
+        forever
+        stx     dest        ;Store the combined len
+        popyx
+        .endm
 
 ;*******************************
 ;                              *
-; MACRO: GET FIRST ELEM OF     *
-;        PREFIX                *
-; ]1 - RESULT FIRST ELEMENT    *
-; ]2 - PREFIX TO COPY FIRST    *
-;      ELEMENT FROM            *
+; Macro: first                 *
+; Descr: Gets first elem of    *
+;        dir                   *
 ;                              *
 ;*******************************
-FIRST          MAC
-               PUSHXY
-               LDX   #0
-               CPX   ]2         ;CHECK IF AT END OF ]2 LEN
-               BEQ   DONE
-               LDA   ]2+1       ;DO FIRST SLASH SEPARATELY SO
-               STA   ]1+1       ;A MATCH ON THE 2ND CAN TERM
-NEXT           INX
-               CPX   ]2         ;CHECK IF AT END OF LEN ]2
-               BEQ   DONE
-               LDA   ]2+1,X     ;LOAD CHAR
-               STA   ]1+1,X     ;STORE CHAR
-               CMP   #'/'       ;SLASH W/O HIGH BIT SET
-               BNE   NEXT
-               INX              ;ADD ONE FOR SLASH JUST COPIED
-DONE           STX   ]1         ;SET LEN OF RESULT
-               POPYX
-               <<<
+first   .macro  result,dir
+        pushx
+        ldx     #0
+        cpx     dir         ;Check if at end of len(dir)
+        if ne
+          lda   dir+1       ;Do first slash separately so
+          sta   result+1    ;A match on the 2nd can term
+          repeat
+            inx
+            cpx dir         ;Check if at end of len(dir)
+            break eq
+            lda dir+1,X     ;Load char
+            sta result+1,X  ;Store char
+            cmp #'/'        ;Slash w/o high bit set
+          until eq
+          cmp   #'/'        ;Check loop end condition
+          if eq
+            inx             ;Add one for if ended on slash
+          endif
+        endif
+        stx     result      ;Set len of result
+        popx
+        .endm
 
 ;*******************************
 ;                              *
-; MACRO: PRINTS PASCAL STRING  *
-; ]1 - STRING TO PRINT         *
+; Macro: Prints Pascal string  *
 ;                              *
 ;*******************************
-PRINT          MAC
-               PUSHX
-               LDX   #0
-NEXT           CPX   ]1
-               BEQ   DONE
-               LDA   ]1+1,X
-               ORA   #%10000000
-               JSR   COUT
-               INX
-               JMP   NEXT
-DONE           JSR   CROUT
-               POPX
-               <<<
+print   .macro  strToPrint
+        pushx
+        ldx     #0
+        repeat
+          cpx   strToPrint      ;Compare X to length of strToPrint
+          break eq
+          lda   strToPrint+1,X
+          ora   #%10000000
+          jsr   COUT
+          inx
+        forever
+        jsr     CROUT
+        popx
+        .endm
 
 ;*******************************
 ;                              *
-; MACRO: PUTS                  *
-; DESCR: WRITES C-STYLE STRING *
-;        TO THE SCREEN         *
-; ]1 - THE STRING TO WRITE     *
+; Macro: Puts                  *
+; Descr: Writes c-style string *
+;        to the screen         *
 ;                              *
 ;*******************************
-PUTS           MAC
-               PUSHY
-               LDY   #0
-NEXT           LDA   ]1,Y       ;NEEDS Y NOT X FOR (VAR),Y MODE
-               CMP   #0
-               BEQ   DONE
-               JSR   COUT
-               INY
-               JMP   NEXT
-DONE           POPX
-               <<<
+puts    .macro  strToPut
+        pushy
+        ldy     #0
+        repeat
+          lda   strToPut,Y  ;Needs y not x for (var),y mode
+          cmp   #0
+          break eq
+          jsr   COUT
+          iny
+        forever
+        popy
+        .endm
 
-:

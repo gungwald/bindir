@@ -7,6 +7,8 @@
 ;                              *
 ;*******************************
 
+                .code
+
 ; ORG $2000
 ; TYP $06        ;OUTPUT FILE TYPE IS BIN
 ; SAV /BINDIR/BINDIR
@@ -63,7 +65,9 @@ cmdHandler
 ; INCLUDE SUBROUTINES          *
 ;                              *
 ;*******************************
-               .include "mli.calls.s"
+                .include "mli.calls.s"
+
+                .data
 
 ;*******************************
 ;                              *
