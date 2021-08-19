@@ -1,131 +1,115 @@
-
 ;*******************************
 ;                              *
 ; PRODOS MLI SYSTEM CALLS      *
 ;                              *
 ;*******************************
 
-MSG_ADDR             .equ        6
+MSG_ADDR	.equ	6
+IOBUF		.equ	$4000
 
-ON_LINE_ID           .equ        $C5
-GET_PREFIX_ID        .equ        $C7
-OPEN_ID              .equ        $C8
-CLOSE_ID             .equ        $CC
-
-
-getPrefix
-               jsr   MLI
-               .byte    GET_PREFIX_ID
-               .word    getPrefixParams
-               BEQ	getPrefixOkay
-               JSR   WRITE_ERROR
-               JMP   EXIT_PROGRAM
-getPrefixOkay
-               RTS
+ON_LINE_ID	.equ	$C5
+GET_PREFIX_ID	.equ	$C7
+OPEN_ID		.equ	$C8
+CLOSE_ID	.equ	$CC
 
 
-open
-               JSR   MLI
-               .byte    OPEN_ID
-               .word    OPEN_PARAMS
-               BEQ	openOkay
-               JSR   WRITE_ERROR
-               JMP   EXIT_PROGRAM
-openOkay
-               RTS
+getPrefix	jsr	MLI
+		.byte	GET_PREFIX_ID
+		.word	getPrefixParams
+		beq	getPrefixOkay
+		jsr	writeError
+		jmp	exitProgram
+getPrefixOkay	rts
 
 
-close
-               JSR   MLI
-               .byte    CLOSE_ID
-               .word    CLOSE_PARAMS
-               BEQ   CLOSE_OK
-               JSR   WRITE_ERROR
-               JMP   EXIT_PROGRAM
-close_ok
-               RTS
+open		jsr	MLI
+		.byte	OPEN_ID
+		.word	openParams
+		beq	openOkay
+		jsr	writeError
+		jmp	exitProgram
+openOkay	rts
 
 
-exit_program
-               popw  RETURN_ADDR
-               RTS
+close		jsr	MLI
+		.byte	CLOSE_ID
+		.word	closeParams
+		beq	closeOkay
+		jsr	writeError
+		jmp	exitProgram
+closeOkay	rts
 
 
-return_addr	.word    0
+exitProgram	popw	returnAddress
+		rts
 
 
-write_error
-               STA   ERROR_CODE
-
-               pushxy
-               pushw MSG_ADDR
-
-               LDX   #0
-               LDY   #0
-
-.NEXT_CODE
-               lda   ERROR_CODE
-               cmp   ERROR_CODES,X
-               beq   :FOUND_CODE
-               inx
-               iny
-               iny
-               cpx   ERROR_COUNT
-               bmi   :NEXT_CODE
-
-.WRITE_UNK_ER
-               lda   #"("
-               jsr   COUT
-               puts  UNKNOWN_CODE
-               lda   ERROR_CODE
-               jsr   PRBYTE
-               lda   #")"
-               jsr   COUT
-               jmp   :DONE
-
-.FOUND_CODE
-               lda   ERROR_MSGS,Y ;LOAD A WITH LOW BYTE OF MSG
-               sta   MSG_ADDR     ;STORE LOW BYTE INTO LOLAC
-               iny                ;ADVANCE TO HIGH BYTE
-               lda   ERROR_MSGS,Y ;LOAD A WITH HIGH BYTE GSM FO
-               sta   MSG_ADDR+1   ;STORE HIGH BYTE INTO LLACO
-
-               lda   #"("
-               jsr   COUT
-               puts  (MSG_ADDR) ;WRITE THE ERROR MESSAGE
-               lda   #")"
-               jsr   COUT
-
-.DONE
-               popw  MSG_ADDR
-               popyx
-               rts
+returnAddress	.word	0
 
 
-prefix  .space    65
-bindir  .space    65
-filler  .space    \          ;FILL WILL 0'S TO NEX PAGE
-iobuf   .space    1024       ;MUST START ON PAGE BOUN.wordYR
+writeError 	sta	errorCode
+		pushxy
+		pushw	MSG_ADDR
+
+		ldx	#0
+		ldy	#0
+
+.nextCode	lda	errorCode
+		cmp	errorCodes,X
+		beq	.foundCode
+		inx
+		iny
+		iny
+		cpx	errorCount
+		bmi	.nextCode
+
+.writeUnkError	lda	#"("
+		jsr	COUT
+		puts	unknownCode
+		lda	errorCode
+		jsr	PRBYTE
+		lda	#")"
+		jsr	COUT
+		jmp	.done
+
+.foundCode	lda	errorMessages,Y	;Load a with low byte of msg
+		sta	MSG_ADDR	;Store low byte into lolac
+		iny			;Advance to high byte
+		lda	errorMessages,Y	;Load a with high byte gsm fo
+		sta	MSG_ADDR+1	;Store high byte into llaco
+
+		lda	#"("
+		jsr	COUT
+		puts	(MSG_ADDR)	;Write the error message
+		lda	#")"
+		jsr	COUT
+
+.done		popw	MSG_ADDR
+		popyx
+		rts
 
 
-getPrefixParams
-                .byte    1          ;PARAM COUNT
-                .word    prefix     ;RESULT
+prefix  	.space	65
+bindir  	.space	65
 
 
-open_params     .byte    3          ;PARAM COUNT
-                .word    bindir     ;INPUT PARMAETER
-                .word    iobuf      ;INPUT PARAMETER
-bindir_ref      .byte    0          ;RESULT
+getPrefixParams .byte	1          ;Param count
+                .word	prefix     ;Result
 
 
-close_params    .byte    1          ;PARAM COUNT
-close_ref       .byte    0          ;INPUT
+openParams      .byte	3          ;Param count
+                .word	bindir     ;Input parmaeter
+                .word	IOBUF      ;Input parameter
+bindirRef 	.byte	0          ;Result
 
 
-ERROR_CODE      .byte    0
-UNKNOWN_CODE    .byte   "UNKNOWN ERROR CODE: ",00
-ERROR_COUNT     .byte    31
+closeParams     .byte	1          ;Param count
+closeRef        .byte	0          ;Input
+
+
+errorCode	.byte	0
+unknownCode	.byte	"UNKNOWN ERROR CODE: ",00
+errorCount	.byte	31
 
 ERR00   .byte   "NO ERROR",00
 ERR01   .byte   "BAD SYSTEM CALL NUMBER",00
@@ -160,7 +144,7 @@ ERR57   .byte   "DUPLICATE VOLUME",00
 ERR5A   .byte   "BIT MAP DISK ADDRESS IS IMPOSSIBLE",00
 
 
-ERROR_CODES
+errorCodes
         .byte    $00
         .byte    $01
         .byte    $03        ;BASIC code used improperly by AppleWin < 1.26.3
@@ -193,7 +177,7 @@ ERROR_CODES
         .byte    $57
         .byte    $5A
 
-ERROR_MSGS
+errorMessages
         .word    ERR00
         .word    ERR01
         .word    ERR03      ;BASIC code used improperly by AppleWin < 1.26.3

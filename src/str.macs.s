@@ -48,19 +48,19 @@ concat  .macro  dest,src
 ;        dir                   *
 ;                              *
 ;*******************************
-first   .macro  result,dir
+getVol  .macro  volume,path
         pushx
         ldx     #0
-        cpx     dir         ;Check if at end of len(dir)
+        cpx     path        ;Check if at end of len(dir)
         if ne
-          lda   dir+1       ;Do first slash separately so
-          sta   result+1    ;A match on the 2nd can term
+          lda   path+1      ;Do first slash separately so
+          sta   volume+1    ;A match on the 2nd can term
           repeat
             inx
-            cpx dir         ;Check if at end of len(dir)
+            cpx path        ;Check if at end of len(dir)
             break eq
-            lda dir+1,X     ;Load char
-            sta result+1,X  ;Store char
+            lda path+1,X    ;Load char
+            sta volume+1,X  ;Store char
             cmp #'/'        ;Slash w/o high bit set
           until eq
           cmp   #'/'        ;Check loop end condition
@@ -68,7 +68,7 @@ first   .macro  result,dir
             inx             ;Add one for if ended on slash
           endif
         endif
-        stx     result      ;Set len of result
+        stx     volume      ;Set len of result
         popx
         .endm
 

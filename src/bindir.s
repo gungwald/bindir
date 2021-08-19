@@ -28,26 +28,26 @@
 
 main
                copyw	nextCommand,EXTRNCMD+1
-               copyw	EXTRNCMD+1,#<cmdHandler
+               copyw	EXTRNCMD+1,#<commandHandler
 
                jsr  	getPrefix
                print	prefix
 
-build_bindir
-               first	bindir,prefix
+buildBindir
+               getVol	bindir,prefix
                print	bindir
-               concat   bindir,bin_slash
+               concat   bindir,binSlash
                print    bindir
 
                jsr      open
                print    opened
 
-close_dir
-               copyb	close_ref,bindir_ref
+closeDir
+               copyb	closeRef,bindirRef
                jsr  	close
                print	closed
 
-end_of_setup
+endOfSetup
                rts
 
 ;*******************************
@@ -56,16 +56,16 @@ end_of_setup
 ;                              *
 ;*******************************
 
-cmdHandler
+commandHandler
 
-               rts
+		rts
 
 ;*******************************
 ;                              *
 ; INCLUDE SUBROUTINES          *
 ;                              *
 ;*******************************
-                .include "mli.calls.s"
+		.include "mli.calls.s"
 
                 .data
 
